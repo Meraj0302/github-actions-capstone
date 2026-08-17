@@ -15,10 +15,10 @@ on:
 
     secrets:
       docker_username:
-        # required: true
+        required: true
 
       docker_token:
-        # required: true
+        required: true
 
     outputs:
       image_url:
