@@ -13,6 +13,13 @@ on:
         required: true
         type: string
 
+    secrets:
+      docker_username:
+        # required: true
+
+      docker_token:
+        # required: true
+
     outputs:
       image_url:
         description: "Full Docker image path"
