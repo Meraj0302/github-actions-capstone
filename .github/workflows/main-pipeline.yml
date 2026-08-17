@@ -24,7 +24,7 @@ jobs:
       image_name: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-capstone
       tag: latest,sha-${{ github.sha }}
     secrets:
-      docker_username: ${{ secrets.DDOCKER_USERNAME }}
+      docker_username: ${{ vars.DOCKERHUB_USERNAME }}
       docker_token: ${{ secrets.DOCKER_TOKEN}}
 
   deploy:
