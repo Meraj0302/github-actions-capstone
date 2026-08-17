@@ -1,0 +1,48 @@
+name: Main CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and Test
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      python_version: "3.12"
+      run_tests: true
+
+  docker:
+    name: Build and Push Docker Image
+    needs: build-test
+    uses: ./.github/workflows/reusable-docker.yml
+    with:
+      image_name: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-capstone
+      tag: latest,sha-${{ github.sha }}
+    secrets:
+      docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy:
+    name: Deploy to Production
+    needs: docker
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Deploy image
+        run: |
+          echo "Deploying image: ${{ needs.docker.outputs.image_url }} to production"
+
+      - name: Deployment summary
+        run: |
+          echo "## Production Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image: ${{ needs.docker.outputs.image_url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Environment: production" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Status: DEPLOYED" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
