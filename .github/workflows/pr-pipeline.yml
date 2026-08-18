@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write   # dependency-review-action needs this to post a PR comment
 
 jobs:
   build-test:
@@ -19,13 +20,49 @@ jobs:
       python_version: "3.12"
       run_tests: true
 
+  dependency-review:
+    name: Check Dependencies for Vulnerabilities
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: critical
+
   pr-comment:
     name: PR Checks Summary
     needs: build-test
     runs-on: ubuntu-latest
-
     steps:
       - name: Print PR summary
         run: |
           echo "PR checks passed for branch: ${{ github.head_ref }}"
           echo "Test result: ${{ needs.build-test.outputs.test_result }}"
+
+# permissions:
+#   contents: read
+
+# jobs:
+#   build-test:
+#     name: Build and Test
+#     uses: ./.github/workflows/reusable-build-test.yml
+#     with:
+#       python_version: "3.14"
+#       run_tests: true
+
+#   pr-comment:
+#     name: PR Checks Summary
+#     needs: build-test
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Print PR summary
+#         run: |
+#           echo "PR checks passed for branch: ${{ github.head_ref }}"
+#           echo "Test result: ${{ needs.build-test.outputs.test_result }}"

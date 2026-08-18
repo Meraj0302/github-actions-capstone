@@ -63,7 +63,25 @@ jobs:
 
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+      
 
+      - name: Build Docker image (local only, not pushed yet)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ${{ steps.tags.outputs.tags }}
+      
+      - name: Scan Docker Image for Vulnerabilities
+        id: scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ inputs.image_name }}:latest
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+      
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -80,3 +98,4 @@ jobs:
         run: |
           FIRST_TAG=$(echo "$TAGS" | cut -d',' -f1 | xargs)
           echo "image_url=${IMAGE_NAME}:${FIRST_TAG}" >> "$GITHUB_OUTPUT"
+      
