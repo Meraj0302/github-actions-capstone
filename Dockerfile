@@ -1,19 +1,22 @@
-# Base image (OS)
-FROM python:3.14-slim
+# ---- builder stage: has pip, compilers, etc ----
+FROM python:3.14-slim AS builder
 
-# Working directory
 WORKDIR /app
 
-# Copy src code to container
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir --target=/install -r requirements.txt
+
 COPY . .
 
-# Run the build commands
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r requirements.txt
+# ---- final stage: minimal runtime, no shell/perl/ncurses/etc ----
+FROM gcr.io/distroless/python3-debian13
 
-# expose port 80
+WORKDIR /app
+
+COPY --from=builder /install /usr/lib/python3.14/site-packages
+COPY --from=builder /app /app
+
 EXPOSE 80
 
-# serve the app / run the app (keep it running)
-CMD ["python","run.py"]
-
+CMD ["run.py"]
