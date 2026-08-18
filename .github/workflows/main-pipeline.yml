@@ -13,7 +13,7 @@ jobs:
     name: Build and Test
     uses: ./.github/workflows/reusable-build-test.yml
     with:
-      python_version: "3.12"
+      python_version: "3.14"
       run_tests: true
 
   docker:
