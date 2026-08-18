@@ -8,7 +8,8 @@ WORKDIR /app
 COPY . .
 
 # Run the build commands
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir -r requirements.txt
 
 # expose port 80
 EXPOSE 80
