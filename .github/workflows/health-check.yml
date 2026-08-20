@@ -1,8 +1,9 @@
 name: Scheduled Health Check
 
 on:
-  schedule:
-    - cron: "0 */12 * * *"
+  workflow_call: 
+  # schedule:
+  #   - cron: "0 */12 * * *"
 
   workflow_dispatch:
 
